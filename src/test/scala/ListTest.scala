@@ -1,7 +1,7 @@
 import collection.mutable.Stack
 import org.scalatest._
 
-class ExampleSpec extends FlatSpec with Matchers {
+class ListTest extends FlatSpec with Matchers {
 
   "MyList" should "be able to compute sum of ints" in {
     val list: MyList[Int] = MyList(1, 2, 3)
@@ -227,5 +227,40 @@ class ExampleSpec extends FlatSpec with Matchers {
     MyList.filterF(MyList(1, 2, 3, 4, 5, 6))(_ < 4) shouldBe (MyList(1, 2, 3))
   }
 
+  "SumLists" should "add values of two lists" in {
+    val l1 = MyList(1, 2, 3)
+    val l2 = MyList(4, 5, 6)
 
+    MyList.sumLists(l1, l2) shouldBe(MyList(5, 7, 9))
+  }
+
+  "ZipWith" should "be able to perform various operation on two lists" in {
+    val l1 = MyList(1, 2, 3)
+    val l2 = MyList(4, 5, 6)
+
+    MyList.zipWith(l1, l2)(_ + _) shouldBe(MyList(5, 7, 9))
+    MyList.zipWith(l1, l2)(_ * _) shouldBe(MyList(4, 10, 18))
+
+    val l3 = MyList("Hel", ",", "Wor")
+    val l4 = MyList("lo", " ", "ld!")
+
+    MyList.zipWith(l3, l4)(_ + _) shouldBe(MyList("Hello", ", ", "World!"))
+  }
+
+  "Take" should "take the n first elements of a list" in {
+    val l1 = MyList(1, 2, 3, 4, 5, 6, 7, 8, 9)
+    MyList.take(l1, 3) shouldBe (MyList(1, 2, 3))
+  }
+
+  "HasSubsequence" should "find a sublist in another list" in {
+    val l1 = MyList(1, 2, 3, 4, 5, 6, 7, 8, 9)
+    val l2 = MyList(4, 5, 6)
+    val l3 = MyList(7, 7, 9)
+    val l4 = MyList(7, 8, 9)
+
+    MyList.hasSubsequence(l1, l4) shouldBe (true)
+    MyList.hasSubsequence(l1, l2) shouldBe (true)
+    MyList.hasSubsequence(l1, l3) shouldBe (false)
+
+  }
 }

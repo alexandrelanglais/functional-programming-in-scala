@@ -118,6 +118,32 @@ object MyList {
   def filterF[A](as: MyList[A])(p: A => Boolean): MyList[A] = {
     flatMap(as)(x => if(p(x)) MyList(x) else MyNil)
   }
+
+  def sumLists(as: MyList[Int], bs: MyList[Int]): MyList[Int] = as match {
+    case MyNil => MyNil
+    case Cons(ax, axs) => bs match {
+      case MyNil => MyNil
+      case Cons(bx, bxs) => Cons(ax + bx, sumLists(axs, bxs))
+    }
+  }
+
+  def zipWith[A](as: MyList[A], bs: MyList[A])(op: (A, A) => A) : MyList[A] = as match {
+    case MyNil => MyNil
+    case Cons(ax, axs) => bs match {
+      case MyNil => MyNil
+      case Cons(bx, bxs) => Cons(op(ax, bx), zipWith(axs, bxs)(op))
+    }
+  }
+
+  def take[A](as: MyList[A], n:Int): MyList[A] = {
+    reverse(drop(reverse(as), length(as) - n))
+  }
+
+  def hasSubsequence[A](as: MyList[A], sub:MyList[A]): Boolean = take(as, length(sub)) match {
+    case MyNil => false
+    case `sub` => true
+    case _ => hasSubsequence(tail(as), sub)
+  }
 }
 
 object MyApp extends App {
