@@ -1,3 +1,5 @@
+package basics
+
 import org.scalatest._
 
 class TreeTest extends FlatSpec with Matchers {

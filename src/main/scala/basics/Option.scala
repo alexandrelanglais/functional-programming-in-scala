@@ -1,3 +1,5 @@
+package basics
+
 sealed trait MyOption[+A] {
   def map[B](f: A => B): MyOption[B] = this match {
     case MySome(x) => MySome(f(x))

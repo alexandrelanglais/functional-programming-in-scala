@@ -1,4 +1,5 @@
-import collection.mutable.Stack
+package basics
+
 import org.scalatest._
 
 class ListTest extends FlatSpec with Matchers {
@@ -6,7 +7,7 @@ class ListTest extends FlatSpec with Matchers {
   "MyList" should "be able to compute sum of ints" in {
     val list: MyList[Int] = MyList(1, 2, 3)
 
-    MyList.sum(list) shouldBe (6)
+    MyList.sum(list) shouldBe 6
   }
 
   it should "be able to multiply every items in the list" in {

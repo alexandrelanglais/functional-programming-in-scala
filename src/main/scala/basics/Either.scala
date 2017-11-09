@@ -1,3 +1,5 @@
+package basics
+
 sealed trait MyEither[+E, +A] {
 
   def map[B](f: A => B): MyEither[E, B] = this match {
