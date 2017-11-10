@@ -65,7 +65,6 @@ class EitherTest extends FlatSpec with Matchers {
   }
 
   "sequenceAsTraverse" should "the same as sequence" in {
-    pending
     val l1 = List(MySome(2), MySome(3), MySome(4))
     val l2 = List(MySome(1))
     val l3 = List(MySome(1), MyNone, MySome(5))

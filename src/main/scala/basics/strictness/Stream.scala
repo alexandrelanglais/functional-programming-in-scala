@@ -75,6 +75,78 @@ sealed trait Stream[+A] {
     foldRight(Stream.empty[B])((a, b) => f(a) append b)
   }
 
+  def mapU[B](f: A => B): Stream[B] = {
+    Stream.unfold(this) { s =>
+      s match {
+        case Empty => None
+        case Cons(x, xs) => Some((f(x()), xs()))
+      }
+    }
+  }
+
+  def takeU(n: Int): Stream[A] = {
+    Stream.unfold((this, 0)) { s =>
+      val (str, cnt) = s
+      str match {
+        case Empty => None
+        case Cons(x, xs) =>
+          if (cnt < n) Some((x(), (xs(), cnt + 1))) else None
+      }
+
+    }
+  }
+
+  def takeWhileU(p: A => Boolean): Stream[A] = {
+    Stream.unfold(this) { s =>
+      s match {
+        case Cons(x, xs) if p(x()) => Some((x(), xs()))
+        case _ => None
+      }
+    }
+  }
+
+  def zipWith[B, C](stream: Stream[B])(f: (A, B) => C): Stream[C] = {
+    Stream.unfold((this, stream)) { s =>
+      val (s1, s2) = s
+      s1 match {
+        case Empty => None
+        case Cons(x, xs) =>
+          s2 match {
+            case Empty => None
+            case Cons(xx, xxs) => Some((f(x(), xx()), (xs(), xxs())))
+          }
+      }
+    }
+  }
+
+  def zipAll[B](s2: Stream[B]): Stream[(Option[A], Option[B])] =
+    zipWithAll(s2)((_, _))
+
+  def zipWithAll[B, C](s2: Stream[B])(
+    f: (Option[A], Option[B]) => C): Stream[C] =
+    Stream.unfold((this, s2)) {
+      case (Empty, Empty) => None
+      case (Cons(h, t), Empty) =>
+        Some(f(Some(h()), Option.empty[B]) -> (t(), Stream.empty[B]))
+      case (Empty, Cons(h, t)) =>
+        Some(f(Option.empty[A], Some(h())) -> (Stream.empty[A] -> t()))
+      case (Cons(h1, t1), Cons(h2, t2)) =>
+        Some(f(Some(h1()), Some(h2())) -> (t1() -> t2()))
+    }
+
+  def startsWith[A](s: Stream[A]): Boolean = {
+    zipAll(s).takeWhile(!_._2.isEmpty) forAll {
+      case (h, h2) => h == h2
+    }
+  }
+
+  def tails: Stream[Stream[A]] = {
+    Stream.unfold(this) {
+      case Empty => None
+      case s => Some((s, s drop 1))
+    } append Stream(Stream.empty)
+  }
+
 }
 
 case object Empty extends Stream[Nothing]
@@ -109,9 +181,25 @@ object Stream {
     go(0, 1)
   }
 
-  //  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = {
-  //    for {
-  //      t <- f(z)
-  //    } yield Stream.cons(z, unfold(t)(f))
-  //  }
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
+    case Some((a, s)) => Stream.cons(a, unfold(s)(f))
+    case None => Empty
+  }
+
+  def constantU[A](a: A): Stream[A] = {
+    unfold(a)(s => Some(s, s))
+  }
+
+  def fromU(n: Int): Stream[Int] = {
+    unfold(n)(s => Some(s, s + 1))
+  }
+
+  def fibsU(): Stream[Int] = {
+    unfold((0, 1))(s => Some(s._2, (s._2, s._1 + s._2)))
+  }
+
+  def onesU(): Stream[Int] = {
+    unfold(1)(s => Some(1, 1))
+  }
+
 }

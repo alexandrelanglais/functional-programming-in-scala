@@ -109,4 +109,76 @@ class StreamTest extends FlatSpec with Matchers {
     println(s.take(20).toList)
   }
 
+  "unfold" should "be able to produce a from-like stream" in {
+    val s = Stream.unfold(0)((s) => Some((s, s + 1)))
+
+    s.take(5).toList shouldBe List(0, 1, 2, 3, 4)
+  }
+
+  "constantU" should "return an infinite stream" in {
+    val s = Stream.constantU(1)
+
+    s.take(1).toList shouldBe List(1)
+    s.take(10).toList shouldBe (1 to 10).toList.map(x => 1)
+  }
+
+  "onesU" should "return an infinite stream" in {
+    val s = Stream.onesU()
+
+    s.take(1).toList shouldBe List(1)
+    s.take(10).toList shouldBe (1 to 10).toList.map(x => 1)
+  }
+
+  "fromU" should "return an infinite stream of integers" in {
+    val s = Stream.fromU(1)
+
+    s.take(1).toList shouldBe List(1)
+    s.take(10).toList shouldBe (1 to 10).toList
+    s.take(50).toList shouldBe (1 to 50).toList
+  }
+
+  "fibsU" should "return an infinite fibonacci stream" in {
+    val s = Stream.fibsU()
+
+    s.take(5).toList shouldBe List(1, 1, 2, 3, 5)
+    s.take(8).toList shouldBe List(1, 1, 2, 3, 5, 8, 13, 21)
+
+    println(s.take(20).toList)
+  }
+
+  "mapU" should "modify a stream maintaining its structure" in {
+    val s = Stream.cons(1, Stream.cons(2, Stream.cons(3, Stream.empty)))
+
+    s.mapU(_ * 2).toList shouldBe List(2, 4, 6)
+  }
+
+  "takeU" should "take n first elements from a stream" in {
+    val s = Stream.cons(1, Stream.cons(2, Stream.cons(3, Stream.empty)))
+
+    s.takeU(2).toList shouldBe List(1, 2)
+    s.takeU(1).toList shouldBe List(1)
+    s.takeU(0).toList shouldBe Nil
+  }
+
+  "takeWhileU" should "take the first elements of a stream while predicate satisfied" in {
+    val s = Stream.cons(2, Stream.cons(4, Stream.cons(5, Stream.empty)))
+
+    s.takeWhileU(_ % 2 == 0).toList shouldBe List(2, 4)
+    s.takeWhileU(_ % 2 != 0).toList shouldBe Nil
+    s.takeWhileU(_ < 3).toList shouldBe List(2)
+  }
+
+  "zipWith" should "be able to perform various operation on two streams" in {
+    val s = Stream.cons(1, Stream.cons(2, Stream.cons(3, Stream.empty)))
+    val s2 = Stream.cons(4, Stream.cons(-2, Stream.cons(3, Stream.empty)))
+
+    s.zipWith(s2)(_ + _).toList shouldBe List(5, 0, 6)
+  }
+
+  "tails" should "return a stream of the tails of a given stream" in {
+    pending
+    val s = Stream.cons(1, Stream.cons(2, Stream.cons(3, Stream.empty)))
+    s.tails.toList shouldBe List(List(1, 2, 3), List(2, 3), List(3))
+
+  }
 }
