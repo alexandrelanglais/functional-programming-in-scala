@@ -20,7 +20,6 @@ class RngTest extends FlatSpec with Matchers {
 
     assert(0 < d && d < 1)
     assert(i != d)
-    assert(r.nextInt != i)
   }
 
   "doubleInt" should "generate a random pair of a double and a int" in {
@@ -28,7 +27,6 @@ class RngTest extends FlatSpec with Matchers {
 
     assert(0 < d && d < 1)
     assert(i != d)
-    assert(r.nextInt != i)
   }
 
   "double3" should "generate a triplet of doubles" in {
@@ -52,6 +50,28 @@ class RngTest extends FlatSpec with Matchers {
     val (n, r) = rng.elegantDouble(rng)
 
     assert(0 < n && n < 1)
+  }
+
+  "randIntDouble" should "generate a random pair of a double and a int" in {
+    val ((i, d), r) = rng.randIntDouble(rng)
+
+    assert(0 < d && d < 1)
+    assert(i != d)
+  }
+
+  "randDoubleInt" should "generate a random pair of a double and a int" in {
+    val ((d, i), r) = rng.randDoubleInt(rng)
+
+    assert(0 < d && d < 1)
+    assert(i != d)
+  }
+
+  "intsSequence" should "generate a list of random numbers" in {
+    val (l, r) = rng.intsSequence(5)(rng)
+
+    println(l)
+    assert(l.size == 5)
+    assert(l.toSet.size == 5)
   }
 
 }

@@ -54,8 +54,7 @@ trait RNG {
       if (n < count) {
         val (i, r2) = r.nextInt
         go(n + 1, i :: l)(r2)
-      }
-      else (l, r)
+      } else (l, r)
     }
 
     go(0, Nil)(rng)
@@ -75,6 +74,31 @@ trait RNG {
 
   def elegantDouble: Rand[Double] =
     map(_.nextInt)(i => i.toDouble / Int.MaxValue)
+
+  def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
+    rng => {
+      val (a, rnga) = ra(rng)
+      val (b, rngb) = rb(rnga)
+
+      (f(a, b), rngb)
+    }
+
+  def both[A, B](ra: Rand[A], rb: Rand[B]): Rand[(A, B)] =
+    map2(ra, rb)((_, _))
+
+  val randIntDouble: Rand[(Int, Double)] =
+    both(int, double)
+
+  val randDoubleInt: Rand[(Double, Int)] =
+    both(double, int)
+
+  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] =
+    fs.foldRight(unit(List[A]()))((f, acc) => map2(f, acc)(_ :: _))
+
+  def intsSequence(count: Int): Rand[List[Int]] = {
+    val l: List[Rand[Int]] = List.fill(count)(int)
+    sequence(l)
+  }
 }
 
 case class SimpleRNG(seed: Long) extends RNG {
@@ -85,4 +109,3 @@ case class SimpleRNG(seed: Long) extends RNG {
     (n, nextRNG)
   }
 }
-
